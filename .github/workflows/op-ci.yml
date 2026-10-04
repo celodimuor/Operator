@@ -56,7 +56,14 @@ jobs:
           cache: pnpm
       - run: pnpm i
       - run: bundle exec rake db:create db:schema:load
-      - run: bundle exec rspec operator/spec --format progress
+      - name: Bootstrap the core route snapshot on first run
+        run: test -f operator/spec/snapshots/core_routes.txt || bundle exec rake operator:routes:snapshot
+      - run: bundle exec rspec -I operator/spec operator/spec --format progress
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: core-route-snapshot
+          path: operator/spec/snapshots/core_routes.txt
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

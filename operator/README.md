@@ -23,7 +23,7 @@ core class with a guard spec under `spec/seams/`.
 ## Running the Operator specs
 
 ```bash
-OPERATOR_REAL_REDIS=1 bundle exec rspec operator/spec
+OPERATOR_REAL_REDIS=1 bundle exec rspec -I operator/spec operator/spec
 ```
 
 Operator specs use a real Redis and a real PostgreSQL. The core suite keeps

@@ -4,6 +4,8 @@ require 'operator_helper'
 # operator/ refers to it. Documentation may name the directory when it
 # explains the policy, so it is excluded from the reference scan.
 RSpec.describe 'Clean room' do
+  # Assembled from parts so this file does not match its own pattern.
+  let(:forbidden_reference) { /\b#{"Enter#{'prise'}"}::|\b#{"enter#{'prise'}"}\// }
   let(:scanned_files) do
     Dir[Operator.root.join('**/*.{rb,rake,erb,yml,yaml,js,ts,vue,json}')]
       .reject { |path| path.include?('/docs/') }
@@ -19,7 +21,7 @@ RSpec.describe 'Clean room' do
   end
 
   it 'never references enterprise code from operator/' do
-    offenders = scanned_files.select { |path| File.read(path).match?(%r{\bEnterprise::|\benterprise/}) }
+    offenders = scanned_files.select { |path| File.read(path).match?(forbidden_reference) }
     expect(offenders).to be_empty
   end
 end

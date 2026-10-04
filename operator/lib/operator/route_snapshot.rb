@@ -24,9 +24,14 @@ module Operator
 
     def self.operator_route?(route)
       requirements = route.requirements
-      requirements[:controller].to_s.start_with?('operator/') || route.app.app == Operator::Engine
+      requirements[:controller].to_s.start_with?('operator/') || mounts_engine?(route)
     end
     private_class_method :operator_route?
+
+    def self.mounts_engine?(route)
+      route.app.respond_to?(:app) && route.app.app == Operator::Engine
+    end
+    private_class_method :mounts_engine?
 
     def self.line_for(route)
       verb = route.verb.presence || 'ANY'
