@@ -7,7 +7,8 @@ module Operator
     ACCOUNT_SCOPE = 'api/v1/accounts/:account_id'.freeze
 
     # Core keeps `captain/preferences` and `captain/tasks` in the MIT tree.
-    CAPTAIN_CORE_PATHS = /\A(?!preferences\b|tasks\b).*/
+    # Rails anchors route requirements itself and rejects explicit anchors.
+    CAPTAIN_CORE_PATHS = /(?!preferences\b|tasks\b).*/
 
     ACCOUNT_PATHS = %w[
       saml_settings
