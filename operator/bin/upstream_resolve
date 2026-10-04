@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Re-applies the enterprise removal (OT-000) after an upstream merge.
+# Safe to run repeatedly; it only touches the two enterprise trees.
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+for path in enterprise spec/enterprise; do
+  if git ls-files --error-unmatch "$path" >/dev/null 2>&1 || [ -e "$path" ]; then
+    git rm -r -q --cached "$path" 2>/dev/null || true
+    rm -rf "$path"
+    echo "removed $path"
+  fi
+done

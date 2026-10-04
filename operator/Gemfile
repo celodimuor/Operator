@@ -1,0 +1,4 @@
+# Evaluated from the root Gemfile (OPERATOR-TOUCH OT-001) so that every
+# Operator-only dependency lives here instead of in the upstream Gemfile.
+# Relative paths resolve against this directory while Bundler evaluates it.
+gemspec

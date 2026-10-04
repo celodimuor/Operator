@@ -1,0 +1,134 @@
+# Operator core touch register.
+# Source of truth for every edit Operator makes outside operator/ (ADR 0001, ADR 0002).
+# Each touched line carries the marker "OPERATOR-TOUCH: OT-NNN" in its language's comment syntax.
+# The CI touch audit fails if a marker has no entry here, an entry has no marker
+# (for status: applied), or the non-mechanical file count exceeds the budget.
+# Mechanical files that do not count: db/schema.rb, lockfiles.
+#
+# Fields: id, files, change, reason, adr, status (planned | applied).
+
+budget:
+  non_mechanical_files: 12
+  lines_per_touch: 1
+
+touches:
+  - id: OT-000
+    files:
+      - enterprise/
+      - spec/enterprise/
+    change: Directories deleted; deletion re-applied on every upstream merge by operator/bin/upstream_resolve.
+    reason: Clean room; the enterprise licence forbids production use without a subscription.
+    adr: "0003"
+    status: applied
+
+  - id: OT-001
+    files:
+      - Gemfile
+    change: "Append eval_gemfile 'operator/Gemfile', whose gemspec directive exposes operator/ as a path gem."
+    reason: Load the Operator engine in every environment with one line.
+    adr: "0001"
+    status: applied
+
+  - id: OT-002
+    files:
+      - vite.shared.ts
+      - tailwind.config.js
+    change: Add the operator/ Vite alias; add app/javascript/operator/** to the Tailwind content glob.
+    reason: Resolve Operator frontend imports; keep Operator utility and icon classes from being purged.
+    adr: "0001"
+    status: planned
+
+  - id: OT-003
+    files:
+      - app/models/agent_bot.rb
+    change: "Add operator_ai: 100 to enum bot_type."
+    reason: Re-declaring the enum in a prepend raises detect_enum_conflict!; Operator AI assistants are AgentBots of this type.
+    adr: "0008"
+    status: planned
+
+  - id: OT-004
+    files:
+      - app/models/assignment_policy.rb
+    change: "Line 38: enum assignment_order becomes { round_robin: 0, balanced: 1 } and the unless ChatwootApp.enterprise? guard is dropped."
+    reason: Balanced assignment parity feature; enum cannot be re-declared in a prepend.
+    adr: "0001"
+    status: planned
+
+  - id: OT-005
+    files:
+      - config/initializers/01_redis.rb
+    change: Gate the test-environment MockRedis on OPERATOR_REAL_REDIS so Operator specs use real Redis.
+    reason: Testing policy forbids substitutes for Redis.
+    adr: "0010"
+    status: applied
+
+  - id: OT-006
+    files:
+      - config/sidekiq.yml
+    change: Add operator_ai and operator_metering queues.
+    reason: Dedicated queues for AI turns and usage metering.
+    adr: "0002"
+    status: planned
+
+  - id: OT-007
+    files:
+      - app/javascript/dashboard/routes/dashboard/dashboard.routes.js
+      - app/javascript/dashboard/routes/dashboard/settings/settings.routes.js
+    change: Spread Operator route arrays.
+    reason: Operator Vue screens must be statically registered for sidebar groups and permissions.
+    adr: "0001"
+    status: planned
+
+  - id: OT-008
+    files:
+      - app/javascript/dashboard/components-next/sidebar/Sidebar.vue
+    change: Two spreads (Operator menu group; Operator settings children).
+    reason: Sidebar menuItems is a computed array with no extension point.
+    adr: "0001"
+    status: planned
+
+  - id: OT-009
+    files:
+      - app/javascript/dashboard/i18n/locale/en/index.js
+    change: Spread the OPERATOR namespace.
+    reason: Operator strings under OPERATOR.* resolved by the core i18n instance.
+    adr: "0002"
+    status: planned
+
+  - id: OT-010
+    files:
+      - app/javascript/dashboard/routes/dashboard/conversation/ContactPanel.vue
+      - app/javascript/dashboard/composables/useUISettings.js
+      - app/javascript/dashboard/components/widgets/WootWriter/ReplyTopPanel.vue
+      - app/javascript/dashboard/components/widgets/WootWriter/ReplyBottomPanel.vue
+      - app/javascript/dashboard/routes/dashboard/Dashboard.vue
+    change: One tag or entry each (operator_records contact panel block and accordion name; reply panel insertion sites; OperatorCopilotContainer mount).
+    reason: Insertion points for records sidebar, reply tools and Operator Copilot.
+    adr: "0001"
+    status: planned
+
+  - id: OT-011
+    files:
+      - app/javascript/dashboard/routes/dashboard/settings/inbox/channels/Sms.vue
+    change: Provider options for Termii and Africa's Talking.
+    reason: Channel::Sms provider dispatch seam needs UI selection.
+    adr: "0001"
+    status: planned
+
+  - id: OT-012
+    files:
+      - CLAUDE.md
+      - .claude/
+    change: Root CLAUDE.md imports operator/AGENTS.md; .claude/settings.json denies reading the removed enterprise paths and force pushes.
+    reason: Every agent session loads the Operator charter; clean-room read denial.
+    adr: "0003"
+    status: applied
+
+  - id: OT-013
+    files:
+      - .github/pull_request_template.md
+      - package.json
+    change: Operator PR template with the Definition of Done; package.json scripts for Operator frontend tooling.
+    reason: Delivery tooling.
+    adr: "0003"
+    status: planned

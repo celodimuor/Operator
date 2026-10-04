@@ -1,0 +1,2 @@
+# Operator files are always LF so scripts run unchanged inside Linux containers.
+* text=auto eol=lf

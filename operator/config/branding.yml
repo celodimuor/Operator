@@ -1,0 +1,6 @@
+# Installation-level branding applied to InstallationConfig by
+# Operator::Branding::Apply (run on every `db:migrate`).
+# INSTALLATION_NAME must differ from "Chatwoot": the dashboard only honours
+# per-account feature flags on a custom-branded installation.
+INSTALLATION_NAME: Operator
+BRAND_NAME: Operator

@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+# Fails when a core file changed relative to UPSTREAM_BASE without an entry
+# in operator/docs/upstream-touches.yml. Mechanical files and the Operator
+# tree itself are exempt. Usage: operator/bin/touch_audit [git-ref]
+require 'yaml'
+require 'pathname'
+
+root = Pathname.new(`git rev-parse --show-toplevel`.strip)
+base = ARGV[0] || (root / 'operator/UPSTREAM_BASE').read.strip
+register = YAML.safe_load_file(root / 'operator/docs/upstream-touches.yml')
+touches = register.fetch('touches')
+
+allowed = touches.flat_map { |touch| Array(touch['file'] || touch['files']) }.map(&:to_s)
+exempt_prefixes = %w[operator/ enterprise/ spec/enterprise/ .claude/ .github/workflows/op- NOTICE]
+exempt_files = %w[db/schema.rb Gemfile.lock pnpm-lock.yaml]
+
+changed = `git diff --name-only #{base} HEAD`.split("\n")
+unexpected = changed.reject do |file|
+  exempt_prefixes.any? { |prefix| file.start_with?(prefix) } ||
+    exempt_files.include?(file) ||
+    allowed.include?(file)
+end
+
+if unexpected.empty?
+  puts "touch audit: #{changed.size} changed paths, all accounted for"
+else
+  warn 'touch audit: core files changed without an upstream-touches.yml entry:'
+  unexpected.each { |file| warn "  #{file}" }
+  exit 1
+end

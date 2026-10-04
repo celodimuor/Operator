@@ -281,3 +281,6 @@ group :development, :test do
   gem 'spring'
   gem 'spring-watcher-listen'
 end
+
+# OPERATOR-TOUCH: OT-001 Operator engine and its dependencies live in operator/Gemfile
+eval_gemfile 'operator/Gemfile'

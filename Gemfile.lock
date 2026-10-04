@@ -1,3 +1,8 @@
+PATH
+  remote: operator
+  specs:
+    operator (0.1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -1140,6 +1145,7 @@ DEPENDENCIES
   opensearch-ruby
   opentelemetry-exporter-otlp
   opentelemetry-sdk
+  operator!
   pg
   pg_search
   pgvector
