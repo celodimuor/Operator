@@ -1,0 +1,51 @@
+# Local development and test loop for Operator on machines without a native
+# Ruby toolchain. Uses the Chatwoot codespace image (Ruby 3.4.4, Node 24,
+# pnpm, gems and node modules preinstalled) with the repository bind-mounted.
+#
+#   docker compose -f operator/docker/compose.dev.yml up -d
+#   docker compose -f operator/docker/compose.dev.yml exec app bash
+#
+services:
+  app:
+    image: ghcr.io/chatwoot/chatwoot_codespace:latest
+    command: sleep infinity
+    working_dir: /workspace
+    volumes:
+      - ../..:/workspace:cached
+      - bundle:/home/vscode/.rbenv/versions/3.4.4/lib/ruby/gems
+      - node_modules:/workspace/node_modules
+    environment:
+      RAILS_ENV: test
+      POSTGRES_HOST: db
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: postgres
+      REDIS_URL: redis://redis:6379
+      OPERATOR_REAL_REDIS: '1'
+      DISABLE_ENTERPRISE: 'true'
+      SECRET_KEY_BASE: operatordevelopmentsecretkeybase
+      FRONTEND_URL: http://localhost:3000
+    depends_on:
+      - db
+      - redis
+    ports:
+      - '3000:3000'
+
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+
+volumes:
+  postgres:
+  bundle:
+  node_modules:

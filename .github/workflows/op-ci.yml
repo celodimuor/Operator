@@ -1,0 +1,71 @@
+name: Operator CI
+permissions:
+  contents: read
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  architecture:
+    name: architecture guards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ruby/setup-ruby@v1
+      - name: Clean room
+        run: |
+          test ! -e enterprise && test ! -e spec/enterprise
+          ! grep -rnE '\bEnterprise::|\benterprise/' operator --include='*.rb' --include='*.rake' --include='*.erb' --include='*.yml' --include='*.js' --include='*.vue' --exclude-dir=docs
+      - name: Core touch budget
+        run: ruby operator/bin/touch_audit
+
+  operator-specs:
+    name: operator specs
+    runs-on: ubuntu-latest
+    env:
+      OPERATOR_REAL_REDIS: '1'
+      REDIS_URL: redis://localhost:6379
+      POSTGRES_HOST: localhost
+      POSTGRES_USERNAME: postgres
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: --entrypoint redis-server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm i
+      - run: bundle exec rake db:create db:schema:load
+      - name: Bootstrap the core route snapshot on first run
+        run: test -f operator/spec/snapshots/core_routes.txt || bundle exec rake operator:routes:snapshot
+      - run: bundle exec rspec -I operator/spec operator/spec --format progress
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: core-route-snapshot
+          path: operator/spec/snapshots/core_routes.txt
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: operator-rails-log
+          path: log
