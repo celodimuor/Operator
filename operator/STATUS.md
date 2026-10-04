@@ -15,6 +15,10 @@ branded installation, docs system live, first upstream merge rehearsal.
 
 ## Blocked
 
+- Upstream `security-scan` job fails on a pre-existing `rack-proxy 0.7.7`
+  advisory (GHSA-42qh-8mx8-7wqm) in Chatwoot v4.18.0's lockfile. Not a required
+  check. Follow-up: bump `rack-proxy` to >= 1.0.3 once a Ruby toolchain is
+  available to re-lock.
 - Local Docker loop: Docker Desktop is stuck behind an "Update Failed" dialog
   (its auto-update hit a locked file). The engine will not start until a human
   clicks Continue in that dialog. Verification runs on GitHub Actions meanwhile.
