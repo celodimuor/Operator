@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./enterprise/**)",
+      "Read(./spec/enterprise/**)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push origin +*)"
+    ]
+  }
+}
